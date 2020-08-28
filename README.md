@@ -8,6 +8,6 @@ Uploud image melalui source author
 - [x] Middleware auth 
 - [x] Struktur json respon/request 
 - [x] Paginasi  (masih belum sempurna)
-- [ ] Implementasi nodemailer ❌
-- [ ] Implementasi cloudinary ❌
+- [ ] Implementasi nodemailer
+- [ ] Implementasi cloudinary
 - [x] Print out  (masih belum sempurna)
