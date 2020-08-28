@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+        table {
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        </style>
+    </head>
+    <body>
+        <div style="width: 85%; margin: 0 7.5%;">
+            <div style="text-align: center; padding-left: 50px;">            
+                <h3>Data Product</h5>
+                <table>
+                <% if (prducts.length > 0) { %>
+                        <tr>
+                            <td>Date</td>
+                            <td>Total</td>
+                            <td>Name</td>
+                        </tr>
+                    <% prducts.forEach(prduct => {%>
+                       <tr>
+                           <td><%= prduct.createdAt %></td>
+                           <td><%= prduct.total %></td>
+                           <td><%= prduct.name %></td>
+                      </tr>
+                    <%  });%>
+                <% }%>
+                </table>
+             </div>
+        </div>
+    </body>
+</html>
