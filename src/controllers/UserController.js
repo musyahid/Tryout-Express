@@ -4,19 +4,41 @@ const multer = require('multer')
 const response = {
     message: "",
     status: true,
-    data:[]
+    data:{
+      data: [],
+      totalItems: "",
+      totalPages: "",
+    }
 }
 
 
 class UserController {
 
   static async getUser(req, res) {
-    const author = await Users.findAll();
-    response.data = author;
-    response.message = "succes get data";
-    response.status = "success";
-    res.json(response)
+    try {
+      const page= parseInt(req.query.page)
+      const totals = parseInt(req.query.total)
+
+      const options = {
+        page: page, // Default 1
+        paginate: totals, // Default 25
+      }
+      const { docs, pages, total } = await Users.paginate(options)
+  
+      response.data.data = docs;
+      response.data.totalItems = total;
+      response.data.totalPages = pages;
+      response.message = "succes get data";
+      response.status = "success";
+      res.json(response)
+    } catch (error) {
+        response.status = false;
+        response.message = error.message;
+        res.status(400).json(response)
+    }
+
   }
+  
   
   static async saveUser(req, res) {
 
@@ -32,6 +54,7 @@ class UserController {
         }) 
         console.log(saveUser)
         response.message = "sukses simpan data"
+        response.data = saveUser
         res.status(201).json(response)
       } catch (error) {
           response.status = false;
