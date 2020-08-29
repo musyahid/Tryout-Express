@@ -30,11 +30,11 @@ app.use(bodyParser.json());
 
 
 
-app.use('/api/v1/user', passport.authenticate("jwt", { session: false }), routerUser)
-app.use('/api/v1/product', passport.authenticate("jwt", { session: false }),  routerProduct)
-app.use('/api/v1/in', passport.authenticate("jwt", { session: false }), routerProductIn)
-app.use('/api/v1/out', passport.authenticate("jwt", { session: false }), routerProductOut)
-app.use('/api/v1/print', passport.authenticate("jwt", { session: false }), routerPrintProduct)
+app.use('/api/v1/user', routerUser)
+app.use('/api/v1/product',  routerProduct)
+app.use('/api/v1/in', routerProductIn)
+app.use('/api/v1/out', routerProductOut)
+app.use('/api/v1/print', routerPrintProduct)
 app.use('/login', routeLogin)
 
 
