@@ -17,6 +17,9 @@ module.exports = {
       price: {
         type: Sequelize.INTEGER
       },
+      image_url:{
+        type: Sequelize.STRING
+      },
       UserId: {
         type: Sequelize.INTEGER,
             onDelete: 'CASCADE',

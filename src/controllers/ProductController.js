@@ -1,6 +1,9 @@
 const { Products, Users, Product_in, Product_out } = require("../models");
-const multer = require('multer')
-
+const multer = require('multer');
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+var path = require("path");
+require('dotenv').config();
 const response = {
     message: "",
     status: true,
@@ -27,11 +30,24 @@ class ProductController {
   static async saveProduct(req, res) {
 
        try { 
+        
+        const filename = req.files.image.tempFilePath
+        cloudinary.config({ 
+        cloud_name: process.env.CLOUD_NAME, 
+        api_key: process.env.API_KEY, 
+        api_secret: process.env.API_SECRET 
+      });
+       console.log(filename);
+       const img = await cloudinary.uploader.upload(filename, function(error, result) {console.log(result, error)});
+       fs.unlinkSync(filename);
+       console.log(img.secure_url);
+
         const saveProduct = await Products.create({
             name:req.body.name,
             stock:req.body.stock,
             price:req.body.price,
-            UserId:req.body.UserId
+            UserId:req.body.UserId,
+            image_url:img.secure_url,
         }) 
         console.log(saveProduct)
         response.message = "sukses simpan data"
