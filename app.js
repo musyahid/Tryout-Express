@@ -33,6 +33,7 @@ app.use('/api/v1/in', middle, routerProductIn)
 app.use('/api/v1/out', middle, routerProductOut)
 app.use('/api/v1/print', middle, routerPrintProduct)
 
+
 app.use('/login', routeLogin)
 
 
