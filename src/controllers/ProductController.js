@@ -12,7 +12,11 @@ class ProductController {
 
   static async getProduct(req, res) {
     const product = await Products.findAll({
-        include: Users
+        include: [
+          {
+            model : Users, as: "Supplier" 
+          }
+        ]
       });
     response.data = product;
     response.message = "succes get data";
