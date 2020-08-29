@@ -1,6 +1,6 @@
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
+const express = require("express"); // import express
+const app = express(); // inisialisasi express
+const bodyParser = require("body-parser"); // 
 const port = 3000;
 
 const passport = require("passport");
@@ -12,13 +12,8 @@ const routerUser = require('./src/routes/user')
 const routerProduct = require('./src/routes/product')
 const routerProductIn = require('./src/routes/product_in')
 const routerProductOut = require('./src/routes/product_out')
-  const routerPrintProduct = require('./src/routes/print')
+const routerPrintProduct = require('./src/routes/print')
 const routeLogin = require('./src/routes/login')
-
-//tess
-
-//end
-
 
 app.use(
   bodyParser.urlencoded({
@@ -28,13 +23,12 @@ app.use(
 
 app.use(bodyParser.json());
 
+app.use('/api/v1/user', passport.authenticate("jwt", { session: false }), routerUser)
+app.use('/api/v1/product', passport.authenticate("jwt", { session: false }),  routerProduct)
+app.use('/api/v1/in', passport.authenticate("jwt", { session: false }), routerProductIn)
+app.use('/api/v1/out', passport.authenticate("jwt", { session: false }), routerProductOut)
+app.use('/api/v1/print', passport.authenticate("jwt", { session: false }), routerPrintProduct)
 
-
-app.use('/api/v1/user', routerUser)
-app.use('/api/v1/product',  routerProduct)
-app.use('/api/v1/in', routerProductIn)
-app.use('/api/v1/out', routerProductOut)
-app.use('/api/v1/print', routerPrintProduct)
 app.use('/login', routeLogin)
 
 
