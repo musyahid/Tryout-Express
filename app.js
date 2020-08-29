@@ -5,7 +5,6 @@ const port = 3000;
 
 const passport = require("passport");
 
-
 const fileUpload = require('express-fileupload')
 
 app.use(fileUpload({
@@ -28,11 +27,13 @@ app.use(
 
 app.use(bodyParser.json());
 
+
 app.use('/api/v1/user', passport.authenticate("jwt", { session: false }), routerUser)
 app.use('/api/v1/product', routerProduct)
 app.use('/api/v1/in', passport.authenticate("jwt", { session: false }), routerProductIn)
 app.use('/api/v1/out', passport.authenticate("jwt", { session: false }), routerProductOut)
 app.use('/api/v1/print', passport.authenticate("jwt", { session: false }), routerPrintProduct)
+
 
 app.use('/login', routeLogin)
 

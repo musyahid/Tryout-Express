@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   };
   Product_in.init({
     total: DataTypes.INTEGER,
+    date: DataTypes.DATE,
     ProductId: DataTypes.INTEGER
   }, {
     sequelize,
