@@ -1,5 +1,14 @@
 const { Products, Users, Product_in, Product_out } = require("../models");
-const multer = require('multer')
+const nodemailer = require('nodemailer')
+const mustache = require('mustache');
+
+const fs = require('fs')
+
+
+  
+const hbs = require('nodemailer-express-handlebars')
+require('dotenv').config();
+
 
 const response = {
     message: "",
@@ -110,11 +119,30 @@ class ProductController {
 
   static async productIn(req, res) {
     try { 
+
+      const id = req.body.ProductId;
+      const totalIn = req.body.total;
+
+      const findProduct = await Products.findByPk(req.body.ProductId) //Get product by id
+      const stock = findProduct.stock; // Get stock
+      const total =  totalIn + stock; // Add stock
+
+      // save ProductIn
       const saveProductIn = await Product_in.create({
           total:req.body.total,
+          date: Date.now(),
           ProductId:req.body.ProductId,
       }) 
-      console.log(saveProductIn)
+
+      //update stock in Product
+      await Products.update({
+        stock: total,
+      }, {
+        where: {
+          id: id
+        }
+      })
+
       response.message = "sukses simpan data",
       response.data = saveProductIn
       res.status(201).json(response)
@@ -137,16 +165,72 @@ class ProductController {
 
   static async productOut(req, res) {
     try { 
-      const findProduct = await Products.findOne({ where: { id: req.body.ProductId } });
       
-      if(findProduct.stock > req.body.total) {
-          response.status = false;
-          response.message = "Stok Tidak Mencukupi"
-      }else {
-          const saveProductOut = await Product_out.create({
-          total:req.body.total,
-          ProductId:req.body.ProductId,
-      }) 
+      const id = req.body.ProductId;
+      const totalOut = req.body.total;
+
+      const findProduct = await Products.findByPk(req.body.ProductId) //Get product by id
+      const stock = findProduct.stock; // Get stock
+      const total =  stock - totalOut; // Kurangi stock
+      const template = fs.readFileSync('./views/template.html', 'utf8')
+
+
+      //Jika jumlah stock yang tersedia melebihi dari jumlah produk keluar yg diminta 
+      if(stock < req.body.total) {
+        response.status = false,
+        response.message = "stock yang tersedia melebihi dari jumlah produk keluar yg diminta"
+
+        //Jika stok habis mengirim email
+        if(stock == 0) {
+          response.message = "stock habis"
+          let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASSWORD
+            }
+          })
+
+        //   transporter.use('compile', hbs({
+        //       viewEngine: 'express-handlebars',
+        //       viewPath: './views/'
+        // }));
+
+          let mailOptions = {
+            from: 'musyahid2@gmail.com',
+            to: 'lombokvisit98@gmail.com',
+            subject: 'Stok Barang Habis',
+            text: 'Hay Admin barang, stok barang habis',
+            template: 'main',
+            html: mustache.render(template)      
+          }
+
+          transporter.sendMail(mailOptions, function(err, data) {
+            if(err) {
+              console.log("error", err)
+            }else {
+              console.log('email sent')
+            }
+          });
+
+        }
+
+        res.status(201).json(response)
+
+      }else {      
+            const saveProductOut = await Product_out.create({
+            total:req.body.total,
+            date: Date.now(),
+            ProductId:req.body.ProductId,
+        })
+          //update stock in Product
+          await Products.update({
+            stock: total,
+          }, {
+            where: {
+              id: id
+            }
+          })
         console.log(saveProductOut)
         response.message = "sukses simpan data",
         response.data = saveProductOut
