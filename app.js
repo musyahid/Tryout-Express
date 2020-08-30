@@ -16,8 +16,9 @@ var cron = require('node-cron');
 // kirim setiap tanggal 1
 cron.schedule('* * * 1 * *', async () => {
   console.log('running a task every minute');
-  await report.makeReport("http://localhost:3000/view/template/report",{name:"dimar",date:new Date()},)
+  await report.makeReport("http://localhost:3000/view/template/report")
 });
+// report.makeReport("http://localhost:3000/view/template/report").then(res => console.log(res))
 const routerUser = require('./src/routes/user')
 const routerProduct = require('./src/routes/product')
 const routerProductIn = require('./src/routes/product_in')
