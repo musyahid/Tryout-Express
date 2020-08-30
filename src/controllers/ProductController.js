@@ -213,7 +213,7 @@ class ProductController {
 
           let mailOptions = {
             from: process.env.EMAIL,
-            to: 'lombokvisit98@gmail.com',
+            to: 'dimarhanung@gmail.com',
             subject: 'Stok Barang Habis',
             template: 'main',
             html: mustache.render(htm)

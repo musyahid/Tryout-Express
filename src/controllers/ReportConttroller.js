@@ -32,6 +32,7 @@ class ReportController {
           const page = await browser.newPage();
           await page.setContent(res.data);
 
+
           await browser.close();
           console.log("Buat File Pdf Sukses", data.path);
 
