@@ -1,37 +1,102 @@
 const { Products, Users, Product_in, Product_out } = require("../models");
-const multer = require('multer')
+
+const nodemailer = require('nodemailer')
+const mustache = require('mustache');
+const ejs = require("ejs")
+const fs = require('fs')
+const hbs = require('nodemailer-express-handlebars')
+require('dotenv').config();
+
+const cloudinary = require('cloudinary').v2;
+var path = require("path");
 
 const response = {
     message: "",
     status: true,
-    data:[]
+    data:{
+      data: [],
+      totalItems: "",
+      totalPages: "",
+    }
 }
-
 
 class ProductController {
 
   static async getProduct(req, res) {
-    const product = await Products.findAll({
-        include: [
-          {
-            model : Users, as: "Supplier" 
-          }
-        ]
-      });
-    response.data = product;
-    response.message = "succes get data";
-    response.status = "succes";
-    res.json(response)
+
+    if(Object.keys(req.query).length === 0) {
+      try {
+        const options = {
+          page: 1, // Default 1
+          paginate: 10, // Default 25
+          include: [
+            {
+              model : Users, as: "Supplier" 
+            }
+          ]
+        }
+        const { docs, pages, total } = await Products.paginate(options)
+          response.data.data = docs;
+          response.data.totalItems = total;
+          response.data.totalPages = pages;
+          response.message = "succes get data";
+          response.status = "success";
+          res.json(response)
+      } catch (error) {
+          response.status = false;
+          response.message = error.message;
+          res.status(400).json(response)
+      }
+    }else {
+      try {
+          const page= parseInt(req.query.page)
+          const totals = parseInt(req.query.total)
+    
+        const options = {
+          page: page, // Default 1
+          paginate: totals, // Default 25
+          include: [
+            {
+              model : Users, as: "Supplier" 
+            }
+          ]
+        }
+        const { docs, pages, total } = await Products.paginate(options)
+    
+          response.data.data = docs;
+          response.data.totalItems = total;
+          response.data.totalPages = pages;
+          response.message = "succes get data";
+          response.status = "success";
+          res.json(response)
+      } catch (error) {
+          response.status = false;
+          response.message = error.message;
+          res.status(400).json(response)
+      }
+    }
   }
   
   static async saveProduct(req, res) {
 
        try { 
+        const filename = req.files.image.tempFilePath
+        cloudinary.config({ 
+        cloud_name: process.env.CLOUD_NAME, 
+        api_key: process.env.API_KEY, 
+        api_secret: process.env.API_SECRET 
+      });
+       console.log(filename);
+       const img = await cloudinary.uploader.upload(filename, function(error, result) {console.log(result, error)});
+       fs.unlinkSync(filename);
+       console.log(img.secure_url);
+
         const saveProduct = await Products.create({
             name:req.body.name,
             stock:req.body.stock,
             price:req.body.price,
-            UserId:req.body.UserId
+            UserId:req.body.UserId,
+            image_url:img.secure_url,
         }) 
         console.log(saveProduct)
         response.message = "sukses simpan data"
@@ -110,11 +175,30 @@ class ProductController {
 
   static async productIn(req, res) {
     try { 
+
+      const id = req.body.ProductId;
+      const totalIn = req.body.total;
+
+      const findProduct = await Products.findByPk(req.body.ProductId) //Get product by id
+      const stock = findProduct.stock; // Get stock
+      const total =  totalIn + stock; // Add stock
+
+      // save ProductIn
       const saveProductIn = await Product_in.create({
           total:req.body.total,
+          date: Date.now(),
           ProductId:req.body.ProductId,
       }) 
-      console.log(saveProductIn)
+
+      //update stock in Product
+      await Products.update({
+        stock: total,
+      }, {
+        where: {
+          id: id
+        }
+      })
+
       response.message = "sukses simpan data",
       response.data = saveProductIn
       res.status(201).json(response)
@@ -137,16 +221,69 @@ class ProductController {
 
   static async productOut(req, res) {
     try { 
-      const findProduct = await Products.findOne({ where: { id: req.body.ProductId } });
       
-      if(findProduct.stock > req.body.total) {
-          response.status = false;
-          response.message = "Stok Tidak Mencukupi"
-      }else {
-          const saveProductOut = await Product_out.create({
-          total:req.body.total,
-          ProductId:req.body.ProductId,
-      }) 
+      const id = req.body.ProductId;
+      const totalOut = req.body.total;
+
+      const findProduct = await Products.findByPk(req.body.ProductId) //Get product by id
+      const stock = findProduct.stock; // Get stock
+      const total =  stock - totalOut; // Kurangi stock
+      // const template = fs.readFileSync('./views/template.html', 'utf8')
+
+      console.log(req.body.total)
+      //Jika jumlah stock yang tersedia melebihi dari jumlah produk keluar yg diminta 
+      if(stock < req.body.total) {
+        response.status = false,
+        response.message = `stock yang tersedia melebihi dari jumlah produk keluar yg diminta. stok saat ini ${stock}`
+        
+        //Jika stok habis mengirim email
+        if(stock == 0) {
+          const htm = await ejs.renderFile(path.join(__dirname, "../../views/template.ejs"), { name: findProduct.name })
+          console.log(htm);
+          response.message = "stock habis"
+          console.log(process.env.EMAIL)
+          let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.EMAIL,
+              pass: process.env.PASSWORD
+            }
+          })
+
+          let mailOptions = {
+            from: process.env.EMAIL,
+            to: 'lombokvisit98@gmail.com',
+            subject: 'Stok Barang Habis',
+            template: 'main',
+            html: mustache.render(htm)
+          }
+
+          transporter.sendMail(mailOptions, function(err, data) {
+            if(err) {
+              console.log("error", err)
+            }else {
+              console.log('email sent')
+            }
+          });
+
+        }
+
+        res.status(201).json(response)
+
+      }else {      
+            const saveProductOut = await Product_out.create({
+            total:req.body.total,
+            date: Date.now(),
+            ProductId:req.body.ProductId,
+        })
+          //update stock in Product
+          await Products.update({
+            stock: total,
+          }, {
+            where: {
+              id: id
+            }
+          })
         console.log(saveProductOut)
         response.message = "sukses simpan data",
         response.data = saveProductOut
