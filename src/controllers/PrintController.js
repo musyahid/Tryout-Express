@@ -14,6 +14,7 @@ const response = {
 
 class PrintController {
 
+
   static async printProductIn(req, res) {
     
     const {id} = req.params;
