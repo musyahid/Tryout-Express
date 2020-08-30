@@ -14,7 +14,7 @@ app.use(fileUpload({
 var cron = require('node-cron');
  
 // kirim setiap tanggal 1
-cron.schedule('* * * * *', async () => {
+cron.schedule('* * * 1 * *', async () => {
   console.log('Sekarang tanggal 1, Membuat laporan...');
   await report.makeReport()
 });
