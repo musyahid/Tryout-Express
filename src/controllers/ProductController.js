@@ -4,16 +4,12 @@ const nodemailer = require('nodemailer')
 const mustache = require('mustache');
 const ejs = require("ejs")
 const fs = require('fs')
-
-
-  
 const hbs = require('nodemailer-express-handlebars')
 require('dotenv').config();
 
 
 const cloudinary = require('cloudinary').v2;
 var path = require("path");
-require('dotenv').config();
 
 const response = {
     message: "",
@@ -22,7 +18,10 @@ const response = {
 }
 
 
+
+
 class ProductController {
+
 
   static async getProduct(req, res) {
    
@@ -42,7 +41,6 @@ class ProductController {
   static async saveProduct(req, res) {
 
        try { 
-        
         const filename = req.files.image.tempFilePath
         cloudinary.config({ 
         cloud_name: process.env.CLOUD_NAME, 
