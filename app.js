@@ -15,9 +15,10 @@ var cron = require('node-cron');
  
 // kirim setiap tanggal 1
 cron.schedule('* * * 1 * *', async () => {
-  console.log('running a task every minute');
-  await report.makeReport("http://localhost:3000/view/template/report",{name:"dimar",date:new Date()},)
+  console.log('Sekarang tanggal 1, Membuat laporan...');
+  await report.makeReport()
 });
+// report.makeReport("http://localhost:3000/view/template/report").then(res => console.log(res))
 const routerUser = require('./src/routes/user')
 const routerProduct = require('./src/routes/product')
 const routerProductIn = require('./src/routes/product_in')
@@ -39,18 +40,8 @@ app.use('/api/v1/in', middle, routerProductIn)
 app.use('/api/v1/out', middle, routerProductOut)
 app.use('/api/v1/print', middle, routerPrintProduct);
 
-// parameter nya url lalu data yang akan dikirim, fungsi ini akan memanggil method post dibawah
 
-
-
-// ini dipanggil dari report.makeReport()
-app.post('/view/template/report',(req,res)=>{
- 
-  console.log(req.body) // req.body disini berupa data yang di posts lewat axios yang berada dlm report.makeReport() parameter 2
-  res.render("test",req.body);
-})
-
-app.use('/login', routeLogin)
+app.use('/', routeLogin)
 
 
 app.listen(port, () => {

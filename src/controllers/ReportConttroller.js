@@ -9,22 +9,19 @@ let path = require("path");
 
 
 class ReportController {
-  static async makeReport(url, data) {
-    console.log(url,data);
+  static async makeReport(url) {
+    return new Promise(async function(resolve) {
+
+      console.log(url);
 
     //Get data Product In
-    const prductsIn = await Product_in.findAll({})
+    const prductsIn = await Product_in.findAll({});
     //Get data Product Out
-    const prductsOut = await Product_out.findAll({})
+    const prductsOut = await Product_out.findAll({});
 
     // data disini dapet dari parameter 2 di app.js tadi
     
-    axios
-      .post(url, data)
-      .then(function (res) {
-          // res.data disini sudah berupa text html, karena return dari posts nya adalah html
-          // setelah itu tinggal print pdf nya karena sudah dapat html nya
-        // menjalankan puppetear
+    
         (async function () {
          
           //render file ejs in views/report-template.ejs dan mengirimkan data product in dan product out
@@ -79,6 +76,7 @@ class ReportController {
                           console.log("error", err)
                         }else {
                           console.log('email sent')
+                          resolve("Sukses Terkirim")
                         }
                       });
                         console.log("File created successfully");
@@ -88,10 +86,10 @@ class ReportController {
         });
 
         })();
-      })
-      .catch(function (error) {
-        console.log(error.message);
-      });
+    
+
+    });
+    
   }
 }
 
