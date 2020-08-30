@@ -14,38 +14,42 @@ const response = {
 
 class PrintController {
 
-
   static async printProductIn(req, res) {
     
     const {id} = req.params;
+    try {
+        const prducts = await Product_in.findAll({
+            include: Products
+          });
+    
+           ejs.renderFile(path.join(__dirname, '../../views/', "report-template.ejs"), {prducts: prducts}, (err, data) => {
+           if (err) {
+                 res.send(err);
+           } else {
+               let options = {
+                   "height": "11.25in",
+                   "width": "8.5in",
+                   "header": {
+                       "height": "20mm"
+                   },
+                   "footer": {
+                       "height": "20mm",
+                   },
+               };
+               pdf.create(data, options).toFile("reports/Product In Report.pdf", function (err, data) {
+                   if (err) {
+                       res.send(err);
+                   } else {
+                       res.send("File created successfully");
+                   }
+               });
+           }
+       });
+    } catch (error) {
+        console.log(error)
+    }
 
-    const prducts = await Product_in.findAll({
-        include: Products
-      });
 
-       ejs.renderFile(path.join(__dirname, '../../views/', "report-template.ejs"), {prducts: prducts}, (err, data) => {
-       if (err) {
-             res.send(err);
-       } else {
-           let options = {
-               "height": "11.25in",
-               "width": "8.5in",
-               "header": {
-                   "height": "20mm"
-               },
-               "footer": {
-                   "height": "20mm",
-               },
-           };
-           pdf.create(data, options).toFile("reports/Product In Report.pdf", function (err, data) {
-               if (err) {
-                   res.send(err);
-               } else {
-                   res.send("File created successfully");
-               }
-           });
-       }
-   });
   }
 
 

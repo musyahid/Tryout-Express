@@ -4,17 +4,12 @@ const nodemailer = require('nodemailer')
 const mustache = require('mustache');
 
 const fs = require('fs')
-
-
-  
 const hbs = require('nodemailer-express-handlebars')
 require('dotenv').config();
 
 
 const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
 var path = require("path");
-require('dotenv').config();
 
 const response = {
     message: "",
@@ -23,7 +18,10 @@ const response = {
 }
 
 
+
+
 class ProductController {
+
 
   static async getProduct(req, res) {
     const product = await Products.findAll({
