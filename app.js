@@ -36,8 +36,6 @@ app.use(bodyParser.json());
 
 app.use('/api/v1/user', middle, routerUser)
 app.use('/api/v1/product', middle, routerProduct)
-app.use('/api/v1/in', middle, routerProductIn)
-app.use('/api/v1/out', middle, routerProductOut)
 app.use('/api/v1/print', middle, routerPrintProduct);
 
 

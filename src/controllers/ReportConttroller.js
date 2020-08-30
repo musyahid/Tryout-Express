@@ -1,18 +1,15 @@
-const axios = require("axios").default;
 const mustache = require('mustache');
 const nodemailer = require('nodemailer')
 require('dotenv').config()
-const { Products, Users, Product_in, Product_out } = require("../models");
+const { Product_in, Product_out } = require("../models");
 let ejs = require("ejs");
 let pdf = require("html-pdf");
 let path = require("path");
 
 
 class ReportController {
-  static async makeReport(url) {
-    return new Promise(async function(resolve) {
-
-      console.log(url);
+  static async makeReport() {
+    return new Promise(async function(resolve, reject) {
 
     //Get data Product In
     const prductsIn = await Product_in.findAll({});
@@ -72,6 +69,7 @@ class ReportController {
                       transporter.sendMail(mailOptions, function(err, data) {
                         if(err) {
                           console.log("error", err)
+                          reject("Sukses Terkirim")
                         }else {
                           console.log('email sent')
                           resolve("Sukses Terkirim")
