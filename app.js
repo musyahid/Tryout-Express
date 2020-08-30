@@ -13,8 +13,10 @@ app.use(fileUpload({
 }))
 var cron = require('node-cron');
  
-cron.schedule('* * * * *', () => {
+// kirim setiap tanggal 1
+cron.schedule('* * * 1 * *', async () => {
   console.log('running a task every minute');
+  await report.makeReport("http://localhost:3000/view/template/report",{name:"dimar",date:new Date()},)
 });
 const routerUser = require('./src/routes/user')
 const routerProduct = require('./src/routes/product')
@@ -38,7 +40,7 @@ app.use('/api/v1/out', middle, routerProductOut)
 app.use('/api/v1/print', middle, routerPrintProduct);
 
 // parameter nya url lalu data yang akan dikirim, fungsi ini akan memanggil method post dibawah
-report.makeReport("http://localhost:3000/view/template/report",{name:"dimar",date:new Date()},)
+
 
 
 // ini dipanggil dari report.makeReport()

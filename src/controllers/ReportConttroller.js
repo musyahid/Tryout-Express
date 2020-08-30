@@ -1,5 +1,4 @@
 const axios = require("axios").default;
-const puppeteer = require("puppeteer");
 const mustache = require('mustache');
 const nodemailer = require('nodemailer')
 require('dotenv').config()
@@ -19,7 +18,7 @@ class ReportController {
     const prductsOut = await Product_out.findAll({})
 
     // data disini dapet dari parameter 2 di app.js tadi
-    const id = `report-${new Date().toISOString().split(":").join("-")}`; // nama file berdasar tanggal
+    
     axios
       .post(url, data)
       .then(function (res) {
@@ -27,15 +26,7 @@ class ReportController {
           // setelah itu tinggal print pdf nya karena sudah dapat html nya
         // menjalankan puppetear
         (async function () {
-          console.log(res.data);
-          const browser = await puppeteer.launch();
-          const page = await browser.newPage();
-          await page.setContent(res.data);
-
-
-          await browser.close();
-          console.log("Buat File Pdf Sukses", data.path);
-
+         
           //render file ejs in views/report-template.ejs dan mengirimkan data product in dan product out
           ejs.renderFile(path.join(__dirname, '../../views/', "report-template.ejs"), {prductsIn: prductsIn, prductsOut:prductsOut}, (err, data) => {
             if (err) {
@@ -51,13 +42,13 @@ class ReportController {
                         "height": "20mm",
                     },
                 };
-
+                const id = `report-${new Date().toISOString().split(":").join("-")}`; // nama file berdasar tanggal
                 //Generate file pdf
-                pdf.create(data, options).toFile("reports/Monthly-report.pdf", async function (err, data) {
+                pdf.create(data, options).toFile(`reports/${id}.pdf`, async function (err, data) {
                     if (err) {
                         console.log(err);
                     } else {
-                      const htm = await ejs.renderFile(path.join(__dirname, "../../views/monthly-report.ejs"))
+                      const htm = await ejs.renderFile(path.join(__dirname, "../../views/email-html.ejs"))
                       
                       //Konfigurasi nodemailer
                       console.log(process.env.EMAIL)
@@ -72,13 +63,13 @@ class ReportController {
 
                       let mailOptions = {
                         from: process.env.EMAIL,
-                        to: 'lombokvisit98@gmail.com',
+                        to: 'dimarhanung@gmail.com',
                         subject: 'LAPORAN BULANAN',
                         template: 'main',
                         html: mustache.render(htm),
                         attachments: [{
-                          filename: 'Monthly-report.pdf', 
-                          path: path.join(__dirname, '../../reports', "Monthly-report.pdf"),
+                          filename: `${id}.pdf`, 
+                          path: path.join(__dirname, '../../reports', `${id}.pdf`),
                           contentType: 'application/pdf'
                         }]
                       }
