@@ -11,35 +11,54 @@ const response = {
     }
 }
 
-
 class UserController {
 
   static async getUser(req, res) {
-    try {
-      const page= parseInt(req.query.page)
-      const totals = parseInt(req.query.total)
 
-      const options = {
-        page: page, // Default 1
-        paginate: totals, // Default 25
+    if(Object.keys(req.query).length === 0) {
+      try {
+        const options = {
+          page: 1, // Default 1
+          paginate: 10, // Default 25
+        }
+        const { docs, pages, total } = await Users.paginate(options)
+          response.data.data = docs;
+          response.data.totalItems = total;
+          response.data.totalPages = pages;
+          response.message = "succes get data";
+          response.status = "success";
+          res.json(response)
+      } catch (error) {
+          response.status = false;
+          response.message = error.message;
+          res.status(400).json(response)
       }
-      const { docs, pages, total } = await Users.paginate(options)
-  
-      response.data.data = docs;
-      response.data.totalItems = total;
-      response.data.totalPages = pages;
-      response.message = "succes get data";
-      response.status = "success";
-      res.json(response)
-    } catch (error) {
-        response.status = false;
-        response.message = error.message;
-        res.status(400).json(response)
+    }else {
+      try {
+          const page= parseInt(req.query.page)
+          const totals = parseInt(req.query.total)
+    
+        const options = {
+          page: page, // Default 1
+          paginate: totals, // Default 25
+        }
+        const { docs, pages, total } = await Users.paginate(options)
+    
+          response.data.data = docs;
+          response.data.totalItems = total;
+          response.data.totalPages = pages;
+          response.message = "succes get data";
+          response.status = "success";
+          res.json(response)
+      } catch (error) {
+          response.status = false;
+          response.message = error.message;
+          res.status(400).json(response)
+      }
     }
+ }
+  
 
-  }
-  
-  
   static async saveUser(req, res) {
 
        try { 

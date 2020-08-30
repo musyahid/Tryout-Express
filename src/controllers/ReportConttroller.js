@@ -58,7 +58,7 @@ class ReportController {
 
                       let mailOptions = {
                         from: process.env.EMAIL,
-                        to: 'dimarhanung@gmail.com',
+                        to: 'lombokvisit98@gmail.com',
                         subject: 'LAPORAN BULANAN',
                         template: 'main',
                         html: mustache.render(htm),

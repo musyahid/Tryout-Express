@@ -35,7 +35,7 @@ class ProductController {
             }
           ]
         }
-        const { docs, pages, total } = await Products.paginate(options)
+        const { docs, pages, total } = await Products.findAll(options)
           response.data.data = docs;
           response.data.totalItems = total;
           response.data.totalPages = pages;

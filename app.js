@@ -14,7 +14,7 @@ app.use(fileUpload({
 var cron = require('node-cron');
  
 // kirim setiap tanggal 1
-cron.schedule('* * * 1 * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log('Sekarang tanggal 1, Membuat laporan...');
   await report.makeReport()
 });
@@ -35,7 +35,7 @@ app.use(
 app.use(bodyParser.json());
 
 app.use('/api/v1/user', middle, routerUser)
-app.use('/api/v1/product', routerProduct)
+app.use('/api/v1/product', middle, routerProduct)
 app.use('/api/v1/in', middle, routerProductIn)
 app.use('/api/v1/out', middle, routerProductOut)
 app.use('/api/v1/print', middle, routerPrintProduct);
