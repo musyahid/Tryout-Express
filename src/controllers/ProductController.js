@@ -6,7 +6,6 @@ const ejs = require("ejs")
 const fs = require('fs')
 const hbs = require('nodemailer-express-handlebars')
 require('dotenv').config();
-
 const cloudinary = require('cloudinary').v2;
 var path = require("path");
 
@@ -21,6 +20,7 @@ const response = {
 }
 
 class ProductController {
+
 
   static async getProduct(req, res) {
 
@@ -75,6 +75,7 @@ class ProductController {
           res.status(400).json(response)
       }
     }
+
   }
   
   static async saveProduct(req, res) {
@@ -252,7 +253,9 @@ class ProductController {
 
           let mailOptions = {
             from: process.env.EMAIL,
+
             to: 'lombokvisit98@gmail.com',
+
             subject: 'Stok Barang Habis',
             template: 'main',
             html: mustache.render(htm)

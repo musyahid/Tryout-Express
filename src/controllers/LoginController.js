@@ -1,35 +1,28 @@
 const {  Users } = require("../models");
-const multer = require('multer')
 
 const response = {
     status: true,
     message: "",
     data:[]
 }
+// require("express-session")({
+//   secret: "kucingpanda",
+//   resave: false,
+//   saveUninitialized: false,
+// });
 
 const jwt = require("jsonwebtoken");
 
-const passport = require("passport");
-const passportJWT = require("passport-jwt");
+// const passport = require("passport");
 
-let ExtractJwt = passportJWT.ExtractJwt;
-let JwtStrategy = passportJWT.Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
 
 let jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 jwtOptions.secretOrKey = "kucingpanda";
 
-let strategy = new JwtStrategy(jwtOptions, (jwt_payload, next) => {
-  let user = getUser({ id: jwt_payload.id });
 
-  if (user) {
-    next(null, user);
-  } else {
-    next(null, false);
-  }
-});
-
-passport.use(strategy);
 
 const getUser = async obj => {
     return await Users.findOne({
@@ -66,6 +59,21 @@ class LoginController {
         res.status(500).send("server error");
       }
   }
+
+  static async register(req, res) {
+    try { 
+     const saveUser = await Users.create(req.body) 
+     console.log(saveUser)
+     response.message = "sukses simpan data"
+     response.data = saveUser
+     res.status(201).json(response)
+   } catch (error) {
+       response.status = false;
+       response.message = error.message;
+       res.status(400).json(response)
+   }
+
+}
   
 }
 

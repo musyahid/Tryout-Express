@@ -13,24 +13,45 @@
     <body>
         <div style="width: 85%; margin: 0 7.5%;">
             <div style="text-align: center; padding-left: 50px;">            
-                <h3>Data Product</h5>
+                <h3>Data Product In</h5>
                 <table>
-                <% if (prducts.length > 0) { %>
+                <% if (prductsIn.length > 0) { %>
                         <tr>
                             <td>Date</td>
                             <td>Total</td>
-                            <td>Name</td>
+                            <td>ProcutId</td>
                         </tr>
-                    <% prducts.forEach(prduct => {%>
+                    <% prductsIn.forEach(prduct => {%>
                        <tr>
-                           <td><%= prduct.createdAt %></td>
+                           <td><%= prduct.date %></td>
                            <td><%= prduct.total %></td>
-                           <td><%= prduct.name %></td>
+                           <td><%= prduct.ProductId %></td> 
                       </tr>
                     <%  });%>
                 <% }%>
                 </table>
-             </div>
+             </div>         
+        </div>
+        <div style="width: 85%; margin: 0 7.5%;">
+            <div style="text-align: center; padding-left: 50px;">            
+                <h3>Data Product Out</h5>
+                <table>
+                <% if (prductsOut.length > 0) { %>
+                        <tr>
+                            <td>Date</td>
+                            <td>Total</td>
+                            <td>ProcutId</td>
+                        </tr>
+                    <% prductsOut.forEach(prduct => {%>
+                       <tr>
+                           <td><%= prduct.date %></td>
+                           <td><%= prduct.total %></td>
+                           <td><%= prduct.ProductId %></td>
+                      </tr>
+                    <%  });%>
+                <% }%>
+                </table>
+             </div>         
         </div>
     </body>
 </html>
