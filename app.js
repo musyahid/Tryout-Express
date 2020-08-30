@@ -10,8 +10,11 @@ const fileUpload = require('express-fileupload')
 app.use(fileUpload({
   useTempFiles: true
 }))
-
-
+var cron = require('node-cron');
+ 
+cron.schedule('* * * * *', () => {
+  console.log('running a task every minute');
+});
 const routerUser = require('./src/routes/user')
 const routerProduct = require('./src/routes/product')
 const routerProductIn = require('./src/routes/product_in')

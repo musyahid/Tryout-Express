@@ -2,7 +2,7 @@ const { Products, Users, Product_in, Product_out } = require("../models");
 
 const nodemailer = require('nodemailer')
 const mustache = require('mustache');
-
+const ejs = require("ejs")
 const fs = require('fs')
 
 
@@ -12,7 +12,6 @@ require('dotenv').config();
 
 
 const cloudinary = require('cloudinary').v2;
-const fs = require('fs');
 var path = require("path");
 require('dotenv').config();
 
@@ -26,6 +25,7 @@ const response = {
 class ProductController {
 
   static async getProduct(req, res) {
+   
     const product = await Products.findAll({
         include: [
           {
@@ -191,17 +191,20 @@ class ProductController {
       const findProduct = await Products.findByPk(req.body.ProductId) //Get product by id
       const stock = findProduct.stock; // Get stock
       const total =  stock - totalOut; // Kurangi stock
-      const template = fs.readFileSync('./views/template.html', 'utf8')
+      // const template = fs.readFileSync('./views/template.html', 'utf8')
 
-
+      console.log(req.body.total)
       //Jika jumlah stock yang tersedia melebihi dari jumlah produk keluar yg diminta 
       if(stock < req.body.total) {
         response.status = false,
         response.message = "stock yang tersedia melebihi dari jumlah produk keluar yg diminta"
-
+        
         //Jika stok habis mengirim email
         if(stock == 0) {
+          const htm = await ejs.renderFile(path.join(__dirname, "../../views/template.ejs"), { name: findProduct.name })
+          console.log(htm);
           response.message = "stock habis"
+          console.log(process.env.EMAIL)
           let transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -211,12 +214,11 @@ class ProductController {
           })
 
           let mailOptions = {
-            from: 'musyahid2@gmail.com',
-            to: 'lombokvisit98@gmail.com',
+            from: process.env.EMAIL,
+            to: 'dimarhanung@gmail.com',
             subject: 'Stok Barang Habis',
-            text: 'Hay Admin barang, stok barang habis',
             template: 'main',
-            html: mustache.render(template)      
+            html: mustache.render(htm)
           }
 
           transporter.sendMail(mailOptions, function(err, data) {
