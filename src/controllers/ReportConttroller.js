@@ -20,10 +20,8 @@ class ReportController {
     const prductsOut = await Product_out.findAll({});
 
     // data disini dapet dari parameter 2 di app.js tadi
-    
-    
         (async function () {
-         
+
           //render file ejs in views/report-template.ejs dan mengirimkan data product in dan product out
           ejs.renderFile(path.join(__dirname, '../../views/', "report-template.ejs"), {prductsIn: prductsIn, prductsOut:prductsOut}, (err, data) => {
             if (err) {

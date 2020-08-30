@@ -6,36 +6,76 @@ const ejs = require("ejs")
 const fs = require('fs')
 const hbs = require('nodemailer-express-handlebars')
 require('dotenv').config();
-
-
 const cloudinary = require('cloudinary').v2;
 var path = require("path");
 
 const response = {
     message: "",
     status: true,
-    data:[]
+    data:{
+      data: [],
+      totalItems: "",
+      totalPages: "",
+    }
 }
-
-
-
 
 class ProductController {
 
 
   static async getProduct(req, res) {
-   
-    const product = await Products.findAll({
-        include: [
-          {
-            model : Users, as: "Supplier" 
-          }
-        ]
-      });
-    response.data = product;
-    response.message = "succes get data";
-    response.status = "succes";
-    res.json(response)
+
+    if(Object.keys(req.query).length === 0) {
+      try {
+        const options = {
+          page: 1, // Default 1
+          paginate: 10, // Default 25
+          include: [
+            {
+              model : Users, as: "Supplier" 
+            }
+          ]
+        }
+        const { docs, pages, total } = await Products.paginate(options)
+          response.data.data = docs;
+          response.data.totalItems = total;
+          response.data.totalPages = pages;
+          response.message = "succes get data";
+          response.status = "success";
+          res.json(response)
+      } catch (error) {
+          response.status = false;
+          response.message = error.message;
+          res.status(400).json(response)
+      }
+    }else {
+      try {
+          const page= parseInt(req.query.page)
+          const totals = parseInt(req.query.total)
+    
+        const options = {
+          page: page, // Default 1
+          paginate: totals, // Default 25
+          include: [
+            {
+              model : Users, as: "Supplier" 
+            }
+          ]
+        }
+        const { docs, pages, total } = await Products.paginate(options)
+    
+          response.data.data = docs;
+          response.data.totalItems = total;
+          response.data.totalPages = pages;
+          response.message = "succes get data";
+          response.status = "success";
+          res.json(response)
+      } catch (error) {
+          response.status = false;
+          response.message = error.message;
+          res.status(400).json(response)
+      }
+    }
+
   }
   
   static async saveProduct(req, res) {
@@ -195,7 +235,7 @@ class ProductController {
       //Jika jumlah stock yang tersedia melebihi dari jumlah produk keluar yg diminta 
       if(stock < req.body.total) {
         response.status = false,
-        response.message = "stock yang tersedia melebihi dari jumlah produk keluar yg diminta"
+        response.message = `stock yang tersedia melebihi dari jumlah produk keluar yg diminta. stok saat ini ${stock}`
         
         //Jika stok habis mengirim email
         if(stock == 0) {
@@ -213,7 +253,9 @@ class ProductController {
 
           let mailOptions = {
             from: process.env.EMAIL,
-            to: 'dimarhanung@gmail.com',
+
+            to: 'lombokvisit98@gmail.com',
+
             subject: 'Stok Barang Habis',
             template: 'main',
             html: mustache.render(htm)
