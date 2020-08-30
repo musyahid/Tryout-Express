@@ -59,6 +59,21 @@ class LoginController {
         res.status(500).send("server error");
       }
   }
+
+  static async register(req, res) {
+    try { 
+     const saveUser = await Users.create(req.body) 
+     console.log(saveUser)
+     response.message = "sukses simpan data"
+     response.data = saveUser
+     res.status(201).json(response)
+   } catch (error) {
+       response.status = false;
+       response.message = error.message;
+       res.status(400).json(response)
+   }
+
+}
   
 }
 
